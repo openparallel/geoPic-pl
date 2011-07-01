@@ -1,0 +1,44 @@
+% layout 'default';
+% title 'GeoPic me';
+<div id="main" role="main">
+    <hr />
+    <div class="grid_3" id="plug">
+        Location
+    </div>
+    <div class="grid_9">
+        <div id="map">searching for your location ...</div>
+        <div id="images"> </div>
+    </div>
+    <div class="clear"></div>
+    <hr />
+
+</div>
+
+<script type="text/javascript">
+
+function get_location() {
+    if (Modernizr.geolocation) {
+        navigator.geolocation.getCurrentPosition(show_map);
+    } else {
+        alert("Could not get geo API");
+    }
+} 
+function show_map(position) {
+    var latitude = position.coords.latitude;
+    var longitude = position.coords.longitude;
+
+    $('#map').replaceWith('Lat: ' + latitude + '<br />Lon: ' + longitude + '<br />');
+    $.ajax({
+      url: '/find/' + latitude + '/' + longitude,
+      success: function(data) {
+        $('#images').html(data);
+      }
+    });
+}
+
+$(document).ready(function() { 
+    get_location();
+});
+
+</script>
+
