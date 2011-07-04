@@ -1,0 +1,9 @@
+#!/bin/sh
+
+PIDFILE=/var/run/geopic.pid
+PID=`cat ${PIDFILE}`
+git pull >/dev/null
+kill ${PID}
+./geopicme-pl daemon --listen http://*:3213 --lock /var/run/geopic.lock >/dev/null 2>&1 &
+echo $! > ${PIDFILE}
+echo "geopic restarted ..."
