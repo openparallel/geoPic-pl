@@ -1,6 +1,10 @@
 % layout 'default';
 % title 'GeoPic me - about';
 
+<div class="grid_3" id="plug">
+    about GeoPic me
+</div>
+<div class="grid_9">
 <p>
 GeoPic me is a demo page to showcase our work with TBB. We worked for
 some months on exposing TBB functionality in script languages and you
@@ -16,3 +20,9 @@ HipHop engine and push the TBB integration in HipHop further. The Perl
 integration is a extension that targets the Perl5 interpreter and extend
 the core language.
 </p>
+<p>
+more information on our github repository: <a href="https://github.com/openparallel" tagret="new">github.com/openparallel</a>
+</p>
+</div>
+<div class="clear"></div>
+<hr />
