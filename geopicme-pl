@@ -13,7 +13,12 @@ get '/' => sub {
     $self->render('index');
 };
 
-get '/find/(*lat)/(*lon)' => sub {
+get '/perl/' => sub {
+    my $self = shift;
+    $self->render('index');
+};
+
+get '/perl/find/(*lat)/(*lon)' => sub {
     my $self = shift;
     my $lat  = $self->stash('lat');
     my $lon  = $self->stash('lon');

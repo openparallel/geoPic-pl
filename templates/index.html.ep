@@ -29,7 +29,7 @@ function show_map(position) {
 
     $('#map').replaceWith('Lat: ' + latitude + '<br />Lon: ' + longitude + '<br />');
     $.ajax({
-      url: '/find/' + latitude + '/' + longitude,
+      url: '/perl/find/' + latitude + '/' + longitude,
       success: function(data) {
         $('#images').html(data);
       }
