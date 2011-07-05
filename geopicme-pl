@@ -18,6 +18,11 @@ get '/perl/about' => sub {
     $self->render('about');
 };
 
+get '/perl/contact' => sub {
+    my $self = shift;
+    $self->render('contact');
+};
+
 get '/perl/' => sub {
     my $self = shift;
     $self->render('index');

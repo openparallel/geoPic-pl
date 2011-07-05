@@ -206,6 +206,10 @@ hr {
     height: 5px;
 }
 
+p {
+    margin-bottom: 15px;
+}
+
 /**
  * Non-semantic helper classes: please define your styles before this section.
  */

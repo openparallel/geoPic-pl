@@ -1,0 +1,48 @@
+% layout 'default';
+% title 'GeoPic me - about';
+
+<div class="grid_3" id="plug">
+    Open Parallel
+</div>
+<div class="grid_9">
+<p>
+<b>Open Parallel</b> is a software company specialised around multicore and
+manycore systems and parallel programming. Our solutions are scalable to
+any number of CPUs, computers or systems. We advise and provide software
+and hardware solutions tailored to your data and needs, whether on a
+single desktop, or on a massively parallel supercomputing cluster. Open
+Parallel Limited is a private company registered in New Zealand
+</p>
+</div>
+<div class="clear"></div>
+<hr />
+
+<div class="grid_3" id="plug">
+    Contacts
+</div>
+<div class="grid_9">
+<p>
+<b>Nicolás Erdödy</b>, Director
+<br />Mobile +64 27 521 4020 (<a href="http://www.timeanddate.com/worldclock/city.html?n=264" target="new">NZ Time</a>)
+<br />nicolas (dot) erdody (at) openparallel (dot) com
+</p><p>
+<b>Lenz Gschwendtner</b>, Technical Lead
+<br />lenz (dot) gschwendtner (at) openparallel (dot) com
+</p>
+</div>
+<div class="clear"></div>
+<hr />
+
+<div class="grid_3" id="plug">
+    Address
+</div>
+<div class="grid_9">
+<p>
+Open Parallel Ltd<br />
+Level 1, 20 Wear st<br />
+Oamaru 9400 – North Otago<br />
+NEW ZEALAND
+</p>
+</div>
+<div class="clear"></div>
+<hr />

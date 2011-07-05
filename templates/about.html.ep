@@ -6,12 +6,13 @@
 </div>
 <div class="grid_9">
 <p>
-GeoPic me is a demo page to showcase our work with TBB. We worked for
-some months on exposing TBB functionality in script languages and you
-are now playing with the outcomes.
+GeoPic Me is a demo page to showcase <b>Open Parallel's</b> work with <b>TBB</b>
+(<b>Threading Building Blocks</b>). We worked for some months on exposing TBB
+functionality in script languages and you are now playing with the
+outcomes.
 </p><p>
-TBB is a threading library developed by Intel that makes developing with a
-multicore CPU much easier and takes a lot out of the scary threading
+TBB is a threading library developed by Intel that makes developing with
+a multicore CPU much easier and takes a lot out of the scary threading
 issues normally associated with multicore programming.
 </p><p>
 We decided that PHP end Perl are the two languages we want to focus on
@@ -22,6 +23,9 @@ the core language.
 </p>
 <p>
 more information on our github repository: <a href="https://github.com/openparallel" tagret="new">github.com/openparallel</a>
+</p>
+<p>
+Visit <a href="http://www.OpenParallel.com">www.OpenParallel.com</a> for more details.
 </p>
 </div>
 <div class="clear"></div>
