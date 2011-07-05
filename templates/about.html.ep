@@ -1,0 +1,18 @@
+% layout 'default';
+% title 'GeoPic me - about';
+
+<p>
+GeoPic me is a demo page to showcase our work with TBB. We worked for
+some months on exposing TBB functionality in script languages and you
+are now playing with the outcomes.
+</p><p>
+TBB is a threading library developed by Intel that makes developing with a
+multicore CPU much easier and takes a lot out of the scary threading
+issues normally associated with multicore programming.
+</p><p>
+We decided that PHP end Perl are the two languages we want to focus on
+and took a different path for both. The PHP work set our to enhance the
+HipHop engine and push the TBB integration in HipHop further. The Perl
+integration is a extension that targets the Perl5 interpreter and extend
+the core language.
+</p>

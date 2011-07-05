@@ -13,6 +13,11 @@ get '/' => sub {
     $self->render('index');
 };
 
+get '/perl/about' => sub {
+    my $self = shift;
+    $self->render('about');
+};
+
 get '/perl/' => sub {
     my $self = shift;
     $self->render('index');
@@ -27,7 +32,7 @@ get '/perl/find/(*lat)/(*lon)' => sub {
             lat => $lat,
             lon => $lon,
             min_taken_date => 1262304000,
-            accuracy => 6,
+            accuracy => 3,
             has_geo => 1,
         }
     );
