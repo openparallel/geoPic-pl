@@ -28,29 +28,37 @@ get '/perl/' => sub {
     $self->render('index');
 };
 
+sub get_image_list {
+    my ($lat, $lon, $size) = @_;
+    my $images = $flickr->execute_method(
+	'flickr.photos.search', {
+	    lat => $lat,
+	    lon => $lon,
+	    min_taken_date => 1262304000,
+	    accuracy => 3,
+	    has_geo => 1,
+	}
+    );
+
+    #print STDERR Dumper($images);
+    my $res;
+    my @urls = map {
+	'http://farm'.$_->{farm}.'.static.flickr.com/'
+		.$_->{server}.'/'.$_->{id}
+			.'_'.$_->{secret}.'_'.$size.'.jpg'
+		    } (@{$images->{photos}->{photo}});
+
+    return @urls;
+}
+
 get '/perl/find/(*lat)/(*lon)' => sub {
     my $self = shift;
     my $lat  = $self->stash('lat');
     my $lon  = $self->stash('lon');
 
-    my $images = $flickr->execute_method('flickr.photos.search', {
-            lat => $lat,
-            lon => $lon,
-            min_taken_date => 1262304000,
-            accuracy => 3,
-            has_geo => 1,
-        }
+    $self->render_text(
+	join "", map { "<img src='$_'/>" } get_image_list($lat, $lon, "t")
     );
-
-    #print STDERR Dumper($images);
-
-    my $res;
-    foreach my $img (@{$images->{photos}->{photo}}){
-        my $url = 'http://farm'.$img->{farm}.'.static.flickr.com/'.$img->{server}.'/'.$img->{id}.'_'.$img->{secret}.'_t.jpg';
-        $res .= '<img src="'.$url.'" />';
-    }
-    $self->render_text($res);
 };
-
 
 app->start;
