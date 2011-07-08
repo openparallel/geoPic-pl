@@ -1,12 +1,18 @@
 #!/usr/bin/env perl
 
 use Mojolicious::Lite;
-use Flickr::API2;
+use FindBin qw($Bin);
+use lib "$Bin/lib";
+use Flickr::API2::Cached;
 use Data::Dumper;
 
 # flickr key: 76904a42e0e0a2b7eeaf037c8ec2e00b
 # flickr secret: b4d1a53c3463051a
-my $flickr = new Flickr::API2({'key' => '76904a42e0e0a2b7eeaf037c8ec2e00b', 'secret' => 'b4d1a53c3463051a'});
+my $flickr = Flickr::API2::Cached->new(
+    {'key' => '76904a42e0e0a2b7eeaf037c8ec2e00b',
+     'secret' => 'b4d1a53c3463051a'},
+    ( -d "./geopics" ? ("./geopics") : ())
+);
 
 get '/' => sub {
     my $self = shift;
@@ -30,24 +36,41 @@ get '/perl/' => sub {
 
 sub get_image_list {
     my ($lat, $lon, $size) = @_;
-    my $images = $flickr->execute_method(
+    my $images = $flickr->cached_method(
+	sprintf("@%.2f+%.2f", $lat, $lon),
 	'flickr.photos.search', {
 	    lat => $lat,
 	    lon => $lon,
-	    min_taken_date => 1262304000,
+	    min_taken_date => time - 2 * 86400 * 365,
 	    accuracy => 3,
 	    has_geo => 1,
 	}
     );
 
-    #print STDERR Dumper($images);
-    my $res;
-    my @urls = map {
-	'http://farm'.$_->{farm}.'.static.flickr.com/'
-		.$_->{server}.'/'.$_->{id}
-			.'_'.$_->{secret}.'_'.$size.'.jpg'
-		    } (@{$images->{photos}->{photo}});
+    my @photos = @{$images->{photos}{photo}};
+    if ( @photos > 20 ) {
+	# get one each per user first
+	my @got;
+	while ( @got < 20 ) {
+	    my %seen;
+	    for my $photo ( @photos ) {
+		next if !defined $photo;
+		next if $seen{$photo->{owner}}++;
+		push @got, $photo;
+		undef($photo);
+		last if @got == 20;
+	    }
+	}
+	@photos = @got;
+    }
 
+    print STDERR Dumper(\@photos);
+
+    my $res;
+    my @urls = map { $flickr->get_url_from_image( $_, $size ) }
+	(@photos);
+
+    print STDERR "Returning: @urls\n";
     return @urls;
 }
 
