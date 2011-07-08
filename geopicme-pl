@@ -37,7 +37,7 @@ get '/perl/' => sub {
 sub get_image_list {
     my ($lat, $lon, $size) = @_;
     my $images = $flickr->cached_method(
-	sprintf("@%.2f+%.2f", $lat, $lon),
+	sprintf("@%.2f+%.2f", $lat, $lon),  #cache to nearest mile or so
 	'flickr.photos.search', {
 	    lat => $lat,
 	    lon => $lon,
@@ -79,8 +79,8 @@ get '/perl/find/(*lat)/(*lon)' => sub {
     my $lat  = $self->stash('lat');
     my $lon  = $self->stash('lon');
 
-    $self->render_text(
-	join "", map { "<img src='$_'/>" } get_image_list($lat, $lon, "t")
+    $self->render_json(
+	[ get_image_list($lat, $lon, "t") ]
     );
 };
 

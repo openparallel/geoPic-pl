@@ -29,9 +29,33 @@ function show_map(position) {
 
     $('#map').replaceWith('Lat: ' + latitude + '<br />Lon: ' + longitude + '<br />');
     $.ajax({
-      url: '/perl/find/' + latitude + '/' + longitude,
-      success: function(data) {
-        $('#images').html(data);
+      'url': '/perl/find/' + latitude + '/' + longitude,
+      'dataType': 'json',
+      'success': function(data) {
+        $('#images').empty();
+	images = document.getElementById("images");
+        table = document.createElement('table');
+        table.setAttribute("style", "border: 1px solid green");
+        for (y=0; y<4; y++) {
+	  tr = document.createElement('tr');
+	  tr.setAttribute("height", "160");
+          table.appendChild(tr);
+	  for (x=0; x<5; x++) {
+            td = document.createElement('td');
+            td.setAttribute("width", "160");
+	    if (url = data[ y * 5 + x ]) {
+	      img = document.createElement("img");
+	      img.setAttribute("src", url);
+	      td.appendChild(img);
+            }
+            else {
+	      tn = document.createTextNode("&nbsp;");
+              td.appendChild(tn);
+            }
+            tr.appendChild(td);
+          }
+        }
+        images.appendChild(table);
       }
     });
 }
