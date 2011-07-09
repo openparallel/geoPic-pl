@@ -98,6 +98,7 @@ use Time::HiRes qw(gettimeofday tv_interval);
 use Image::Magick;
 use Digest::MD5 qw(md5_hex);
 use threads::tbb;
+use threads::tbb::refcounter qw(Image::Magick);
 
 our $tbb = threads::tbb->new( requires => [ $0 ] )
     unless $threads::tbb::worker;
