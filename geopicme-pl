@@ -64,13 +64,13 @@ sub get_image_list {
 	@photos = @got;
     }
 
-    print STDERR Dumper(\@photos);
+    #print STDERR Dumper(\@photos);
 
     my $res;
     my @urls = map { $flickr->get_url_from_image( $_, $size ) }
 	(@photos);
 
-    print STDERR "Returning: @urls\n";
+    #print STDERR "Returning: @urls\n";
     return @urls;
 }
 
@@ -84,4 +84,97 @@ get '/perl/find/(*lat)/(*lon)' => sub {
     );
 };
 
+sub get_images {
+    my @rv;
+    while ( my $img = shift ) {
+	print STDERR "Fetching: $img\n";
+	my $filename = $flickr->get_image_from_cache( $img );
+	push @rv, $filename;
+    }
+    @rv;
+}
+
+use Time::HiRes qw(gettimeofday tv_interval);
+use Image::Magick;
+use Digest::MD5 qw(md5_hex);
+
+sub resize_image {
+    my $img = shift;
+    my $image = Image::Magick->new( debug => "Exception" );
+    $image->Read("$img");
+    my ($x, $y) = $image->Get(qw( columns rows ));
+
+    my $smaller = ($x < $y ? $x : $y);
+    $image->Crop(width => $smaller, height => $smaller,
+		 gravity => "Center");
+    $image->Resize( width => 160, height => 160,
+		    filter => "Gaussian" );
+    return $image;
+}
+
+get '/perl/mosaic/(*method)/(*lat)/(*lon)' => sub {
+    my $self = shift;
+    my $method = $self->stash("method");
+    my $lat  = $self->stash('lat');
+    my $lon  = $self->stash('lon');
+
+    my @images = get_image_list($lat, $lon, "z");  # 640px images
+
+    my $t0 = [gettimeofday];
+    my @files = get_images(@images);
+    my $t1 = [gettimeofday];
+
+    my $mosaic = Image::Magick->new(size => "800x640", debug => "Exception");
+    $mosaic->Read("xc:white");
+
+    my @images = map { resize_image($_) } @files;
+
+    my $x_pos = 0;
+    my $y_pos = 0;
+    my $t2 = [gettimeofday];
+    for my $image ( @images ) {
+	$mosaic->Composite(
+	    image => $image,
+	    compose => "over",
+	    x => $x_pos * 160, y => $y_pos * 160,
+	    gravity => "NorthWest",
+	);
+	$x_pos++;
+	if ( $x_pos == 5 ) {
+	    $y_pos++;
+	    $x_pos = 0;
+	}
+    }
+
+    my $img_filename = "$Bin/public/img/"
+	.md5_hex(sprintf("@%.2f+%.2f", $lat, $lon))."_mosaic.jpg";
+    #jopen my $out, ">", $img_filename;
+    print STDERR "Writing $img_filename\n";
+    $mosaic->Set(quality => 75);
+    my $x = $mosaic->Write("jpg:$img_filename");
+    warn $x if $x;
+	#magick => "jpg", quality => 85,
+	#jfile => $out,
+	#jfilename => $img_filename,
+    #);
+    print STDERR "...?\n";
+    #jclose $out;
+    my $t3 = [gettimeofday];
+
+    my $fetch_time = tv_interval $t0, $t1;
+    my $resize_time = tv_interval $t1, $t2;
+    my $composite_time = tv_interval $t2, $t3;
+    (my $rel_url = $img_filename) =~ s{.*?img/}{img/};
+    my $rv = 
+	{
+	fetch_time => sprintf("%.3s", $fetch_time),
+	resize_time => sprintf("%.3s", $resize_time),
+	composite_time => sprintf("%.3s", $composite_time),
+	image_url => $rel_url,
+      };
+    print STDERR "Returning ".Dumper($rv);
+    $self->render_json($rv);
+};
+
 app->start;
+

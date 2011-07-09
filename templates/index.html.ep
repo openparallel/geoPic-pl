@@ -2,12 +2,35 @@
 % title 'GeoPic me';
 <div id="main" role="main">
     <hr />
-    <div class="grid_3" id="plug">
-        Location
+    <div class="grid_3">
+        <div id="plug">Location</div>
+        <div id="map">searching for your location ...</div>
+        <div id="actions" style="text-align: center; display: none">
+	  <button onclick="resize_imgs()">Resize (browser)</button><br/>
+	  <button onclick="get_scaled()">Mosaic (normal)</button><br/>
+	  <button onclick="get_scaled_tbb()">Mosaic (TBB)</button><br/>
+	</div>
+	<table id="stats" style="display: none; text-align: center" border="1">
+	  <tr>
+	    <th>which</th><th>avg scale time</th><th>n</th>
+	  </tr>
+	  <tr>
+	    <td>normal</th><th id="normal_avg">-</th><th id="normal_n">0</th>
+	  </tr>
+	  <tr>
+	    <td>TBB</th><th id="tbb_avg">-</th><th id="tbb_n">0</th>
+	  </tr>
+	</table>
+	<table id="times" style="display: none; text-align: center" border="1">
+	  <tr>
+	    <th>Run</th><th>button</th><th>fetch time</th><th>scale time</th><th>composite time</th>
+	  </tr>
+	  <tbody id="timesdata"/>
+	</table>
     </div>
     <div class="grid_9">
-        <div id="map">searching for your location ...</div>
-        <div id="images"> </div>
+        <div id="images">
+	</div>
     </div>
     <div class="clear"></div>
     <hr />
@@ -23,9 +46,14 @@ function get_location() {
         alert("Could not get geo API");
     }
 } 
+var latitude;
+var longitude;
+var normalstats;
+var tbbstats;
+var runs = 0;
 function show_map(position) {
-    var latitude = position.coords.latitude;
-    var longitude = position.coords.longitude;
+    latitude = Math.round(position.coords.latitude * 100)/100;
+    longitude = Math.round(position.coords.longitude * 100)/100;
 
     $('#map').replaceWith('Lat: ' + latitude + '<br />Lon: ' + longitude + '<br />');
     $.ajax({
@@ -35,7 +63,7 @@ function show_map(position) {
         $('#images').empty();
 	images = document.getElementById("images");
         table = document.createElement('table');
-        table.setAttribute("style", "border: 1px solid green");
+        table.setAttribute("style", "border: 1px solid green; text-align: center; vertial-align: middle; padding: 0; margin: 0");
         for (y=0; y<4; y++) {
 	  tr = document.createElement('tr');
 	  tr.setAttribute("height", "160");
@@ -56,13 +84,106 @@ function show_map(position) {
           }
         }
         images.appendChild(table);
+        $('#actions').show();
       }
     });
 }
 
 $(document).ready(function() { 
     get_location();
+    normalstats = { "total": 0, "n": 0, "avg_id": "normal_avg", "n_id": "normal_n" };
+    tbbstats = { "total": 0, "n": 0, "avg_id": "tbb_avg", "n_id": "tbb_n" };
 });
+
+function resize_imgs() {
+    images = $("#images").find("img").each(function(idx, node) {
+	if ( node.height > node.width ) {
+	    $(node).css("height", "160px");
+        }
+	else {
+	    $(node).css("width", "160px");
+	}
+    });
+}
+
+function get_scaled() {
+    $.ajax({
+      'url': '/perl/mosaic/normal/' + latitude + '/' + longitude,
+      'dataType': 'json',
+      'success': function(data) {
+         $("#images").empty();
+	 images = document.getElementById("images");
+         scaled = document.createElement("img");
+         scaled.setAttribute("src", data.image_url);
+         images.appendChild(scaled);
+	 add_timing_datum( "normal", normalstats, data );
+      }
+    })
+}
+
+function get_scaled_tbb() {
+    $.ajax({
+      'url': '/perl/mosaic/tbb/' + latitude + '/' + longitude,
+      'dataType': 'json',
+      'success': function(data) {
+         $("#images").empty();
+	 images = document.getElementById("images");
+         scaled = document.createElement("img");
+         scaled.setAttribute("src", data.image_url);
+         images.appendChild(scaled);
+	 add_timing_datum( "tbb", tbbstats, data );
+      }
+    })
+}
+
+function add_timing_datum( which, stats, data ) {
+    runs = runs + 1;
+    times_table = document.getElementById("timesdata");
+
+    tr = document.createElement("tr");
+    tr.setAttribute("class", which);
+
+    td = document.createElement("td");
+    txt = document.createTextNode(""+runs);
+    td.appendChild(txt);
+    tr.appendChild(td);
+
+    td = document.createElement("td");
+    txt = document.createTextNode(""+which);
+    td.appendChild(txt);
+    tr.appendChild(td);
+
+    td = document.createElement("td");
+    txt = document.createTextNode(""+data["fetch_time"]);
+    td.appendChild(txt);
+    tr.appendChild(td);
+
+    td = document.createElement("td");
+    txt = document.createTextNode(""+data["resize_time"]);
+    td.appendChild(txt);
+    tr.appendChild(td);
+
+    td = document.createElement("td");
+    txt = document.createTextNode(""+data["composite_time"]);
+    td.appendChild(txt);
+    tr.appendChild(td);
+
+    times_table.appendChild(tr);
+    $("#times").show();
+
+    stats["total"] = stats["total"] + data["resize_time"];
+    stats["n"] = stats["n"] + 1;
+    update_averages(stats);
+}
+
+function update_averages(stats) {
+    if (stats["n"] > 1) {
+        new_avg = (Math.round( stats["total"] * 1000 / stats["n"]) / 1000) + "s";
+        $("#"+stats["avg_id"]).replaceWith( new_avg );
+        $("#"+stats["n_id"]).replaceWith( stats["n"] );
+        $("#stats").show();
+    }
+}
 
 </script>
 
