@@ -97,6 +97,10 @@ sub get_images {
 use Time::HiRes qw(gettimeofday tv_interval);
 use Image::Magick;
 use Digest::MD5 qw(md5_hex);
+use threads::tbb;
+
+our $tbb = threads::tbb->new( requires => [ $0 ] )
+    unless $threads::tbb::worker;
 
 sub resize_image {
     my $img = shift;
@@ -127,7 +131,14 @@ get '/perl/mosaic/(*method)/(*lat)/(*lon)' => sub {
     my $mosaic = Image::Magick->new(size => "800x640", debug => "Exception");
     $mosaic->Read("xc:white");
 
-    my @images = map { resize_image($_) } @files;
+    my @images;
+    if ( $method eq "normal" ) {
+	@images = map { resize_image($_) }
+	    @files;
+    }
+    else {
+	@images = $tbb->map_list_func("main::resize_image", @files);
+    }
 
     my $x_pos = 0;
     my $y_pos = 0;
@@ -176,5 +187,6 @@ get '/perl/mosaic/(*method)/(*lat)/(*lon)' => sub {
     $self->render_json($rv);
 };
 
-app->start;
+app->start
+    unless $threads::tbb::worker;
 
