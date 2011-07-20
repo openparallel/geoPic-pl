@@ -34,7 +34,9 @@
     </div>
     <div class="clear"></div>
     <hr />
-
+    <p>Info: <br />
+      <a href="https://github.com/openparallel/geoPic-pl">Source code on github</a> <br />
+      <a href="https://github.com/openparallel/geoPic-pl/commit/00f36f647eb">Change to add TBB support to this code</a>
 </div>
 
 <script type="text/javascript">
