@@ -5,6 +5,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use Flickr::API2::Cached;
 use Data::Dumper;
+use List::Util qw(shuffle);
 
 # flickr key: 76904a42e0e0a2b7eeaf037c8ec2e00b
 # flickr secret: b4d1a53c3463051a
@@ -117,16 +118,18 @@ sub resize_image {
     return $image;
 }
 
-get '/perl/mosaic/(*method)/(*lat)/(*lon)' => sub {
+get '/perl/mosaic/(*method)/(*lat)/(*lon)/(*seed)' => sub {
     my $self = shift;
     my $method = $self->stash("method");
     my $lat  = $self->stash('lat');
     my $lon  = $self->stash('lon');
+    my $seed  = $self->stash('seed');
 
     my @images = get_image_list($lat, $lon, "z");  # 640px images
 
     my $t0 = [gettimeofday];
-    my @files = get_images(@images);
+    srand $seed;
+    my @files = shuffle get_images(@images);
     my $t1 = [gettimeofday];
 
     my $mosaic = Image::Magick->new(size => "800x640", debug => "Exception");
@@ -159,7 +162,7 @@ get '/perl/mosaic/(*method)/(*lat)/(*lon)' => sub {
     }
 
     my $img_filename = "$Bin/public/img/"
-	.md5_hex(sprintf("@%.2f+%.2f", $lat, $lon))."_mosaic.jpg";
+	.md5_hex(sprintf("@%.2f+%.2f", $lat, $lon))."_mosaic_$seed.jpg";
     #jopen my $out, ">", $img_filename;
     print STDERR "Writing $img_filename\n";
     $mosaic->Set(quality => 75);
