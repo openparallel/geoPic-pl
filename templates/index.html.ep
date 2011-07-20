@@ -12,7 +12,7 @@
 	</div>
 	<table id="stats" style="display: none; text-align: center" border="1">
 	  <tr>
-	    <th>which</th><th>avg scale time</th><th>n</th>
+	    <th>which</th><th>/avg scale time</th><th>/n</th>
 	  </tr>
 	  <tr>
 	    <td>normal</th><th id="normalavg">-</th><th id="normaln">0</th>
@@ -23,7 +23,7 @@
 	</table>
 	<table id="times" style="display: none;" border="1">
 	  <tr>
-	    <th>Run</th><th>button</th><th>fetch time</th><th>scale time</th><th>composite time</th>
+	    <th>Run</th><th>/button</th><th>/fetch time</th><th>/scale time</th><th>/composite time</th>
 	  </tr>
 	  <tbody id="timesdata"/>
 	</table>
