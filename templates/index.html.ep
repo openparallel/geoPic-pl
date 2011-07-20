@@ -15,13 +15,13 @@
 	    <th>which</th><th>avg scale time</th><th>n</th>
 	  </tr>
 	  <tr>
-	    <td>normal</th><th id="normal_avg">-</th><th id="normal_n">0</th>
+	    <td>normal</th><th id="normalavg">-</th><th id="normaln">0</th>
 	  </tr>
 	  <tr>
-	    <td>TBB</th><th id="tbb_avg">-</th><th id="tbb_n">0</th>
+	    <td>TBB</th><th id="tbbavg">-</th><th id="tbbn">0</th>
 	  </tr>
 	</table>
-	<table id="times" style="display: none; text-align: center" border="1">
+	<table id="times" style="display: none;" border="1">
 	  <tr>
 	    <th>Run</th><th>button</th><th>fetch time</th><th>scale time</th><th>composite time</th>
 	  </tr>
@@ -91,8 +91,8 @@ function show_map(position) {
 
 $(document).ready(function() { 
     get_location();
-    normalstats = { "total": 0, "n": 0, "avg_id": "normal_avg", "n_id": "normal_n" };
-    tbbstats = { "total": 0, "n": 0, "avg_id": "tbb_avg", "n_id": "tbb_n" };
+    normalstats = { "total": 0, "n": 0, "avg_id": "normalavg", "n_id": "normaln" };
+    tbbstats = { "total": 0, "n": 0, "avg_id": "tbbavg", "n_id": "tbbn" };
 });
 
 function resize_imgs() {
@@ -171,7 +171,7 @@ function add_timing_datum( which, stats, data ) {
     times_table.appendChild(tr);
     $("#times").show();
 
-    stats["total"] = stats["total"] + data["resize_time"];
+    stats["total"] = stats["total"] + parseFloat(data["resize_time"]);
     stats["n"] = stats["n"] + 1;
     update_averages(stats);
 }
@@ -179,8 +179,8 @@ function add_timing_datum( which, stats, data ) {
 function update_averages(stats) {
     if (stats["n"] > 1) {
         new_avg = (Math.round( stats["total"] * 1000 / stats["n"]) / 1000) + "s";
-        $("#"+stats["avg_id"]).replaceWith( new_avg );
-        $("#"+stats["n_id"]).replaceWith( stats["n"] );
+        document.getElementById(stats["avg_id"]).firstChild.replaceWholeText( new_avg );
+        document.getElementById(stats["n_id"]).firstChild.replaceWholeText( stats["n"] );
         $("#stats").show();
     }
 }
