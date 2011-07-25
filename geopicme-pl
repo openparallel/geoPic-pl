@@ -115,8 +115,8 @@ get '/perl/mosaic/(*method)/(*lat)/(*lon)/(*seed)' => sub {
     my @images = get_image_list($lat, $lon, "z");  # 640px images
 
     my $t0 = [gettimeofday];
-    srand $seed;
-    my @files = shuffle get_images(@images);
+    my @files = get_images(@images);
+    if ( $seed ) { srand $seed; @files = shuffle @files }
     my $t1 = [gettimeofday];
 
     my $mosaic = Image::Magick->new(size => "800x640", debug => "Exception");
