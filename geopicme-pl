@@ -15,25 +15,27 @@ my $flickr = Flickr::API2::Cached->new(
     ( -d "./geopics" ? ("./geopics") : ())
 );
 
-get '/' => sub {
+sub index {
     my $self = shift;
     $self->render('index');
-};
+}
+get '/' => \&index;
+get '/perl/' => \&index;
 
-get '/perl/about' => sub {
+sub about {
     my $self = shift;
     $self->render('about');
 };
+get '/perl/about' => \&about;
+get '/about' => \&about;
 
-get '/perl/contact' => sub {
+sub contact {
     my $self = shift;
     $self->render('contact');
 };
+get '/perl/contact' => \&contact;
+get '/contact' => \&contact;
 
-get '/perl/' => sub {
-    my $self = shift;
-    $self->render('index');
-};
 
 sub get_image_list {
     my ($lat, $lon, $size) = @_;
