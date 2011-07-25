@@ -2,7 +2,7 @@
 
 use Mojolicious::Lite;
 use FindBin qw($Bin);
-use lib "$Bin/lib";
+use lib "$Bin/lib", "lib";
 use Flickr::API2::Cached;
 use Data::Dumper;
 use List::Util qw(shuffle);
@@ -96,27 +96,12 @@ sub get_images {
 }
 
 use Time::HiRes qw(gettimeofday tv_interval);
-use Image::Magick;
 use Digest::MD5 qw(md5_hex);
+
 use threads::tbb;
-use threads::tbb::refcounter qw(Image::Magick);
+use Geopicme;
 
-our $tbb = threads::tbb->new( requires => [ $0 ] )
-    unless $threads::tbb::worker;
-
-sub resize_image {
-    my $img = shift;
-    my $image = Image::Magick->new( debug => "Exception" );
-    $image->Read("$img");
-    my ($x, $y) = $image->Get(qw( columns rows ));
-
-    my $smaller = ($x < $y ? $x : $y);
-    $image->Crop(width => $smaller, height => $smaller,
-		 gravity => "Center");
-    $image->Resize( width => 160, height => 160,
-		    filter => "Gaussian" );
-    return $image;
-}
+our $tbb = threads::tbb->new( modules => [ "Geopicme" ] );
 
 get '/perl/mosaic/(*method)/(*lat)/(*lon)/(*seed)' => sub {
     my $self = shift;
@@ -140,7 +125,7 @@ get '/perl/mosaic/(*method)/(*lat)/(*lon)/(*seed)' => sub {
 	    @files;
     }
     else {
-	@images = $tbb->map_list_func("main::resize_image", @files);
+	@images = $tbb->map_list_func("Geopicme::resize_image", @files);
     }
 
     my $x_pos = 0;
@@ -160,8 +145,9 @@ get '/perl/mosaic/(*method)/(*lat)/(*lon)/(*seed)' => sub {
 	}
     }
 
-    my $img_filename = "$Bin/public/img/"
-	.md5_hex(sprintf("@%.2f+%.2f", $lat, $lon))."_mosaic_$seed.jpg";
+    my $public = ( -d "public" ? "public" : "$Bin/public" );
+    my $img_filename = "$public/img/"
+	.md5_hex(sprintf("@%.2f+%.2f", $lat, $lon))."_montage_${label}_$seed.jpg";
     #jopen my $out, ">", $img_filename;
     print STDERR "Writing $img_filename\n";
     $mosaic->Set(quality => 75);
@@ -190,6 +176,5 @@ get '/perl/mosaic/(*method)/(*lat)/(*lon)/(*seed)' => sub {
     $self->render_json($rv);
 };
 
-app->start
-    unless $threads::tbb::worker;
+app->start;
 
