@@ -135,7 +135,6 @@ get '/perl/mosaic/(*method)/(*lat)/(*lon)/(*seed)' => sub {
     my $mosaic = Image::Magick->new(size => "800x640", debug => "Exception");
     $mosaic->Read("xc:white");
 
-    my @images;
     if ( $method eq "normal" ) {
 	@images = map { resize_image($_) }
 	    @files;
