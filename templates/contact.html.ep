@@ -1,20 +1,6 @@
 % layout 'default';
 % title 'GeoPic me - about';
 
-<div class="grid_3" id="plug">
-    Open Parallel
-</div>
-<div class="grid_9">
-<p>
-<b>Open Parallel</b> is a software company specialised around multicore and
-manycore systems and parallel programming. Our solutions are scalable to
-any number of CPUs, computers or systems. We advise and provide software
-and hardware solutions tailored to your data and needs, whether on a
-single desktop, or on a massively parallel supercomputing cluster. Open
-Parallel Limited is a private company registered in New Zealand
-</p>
-</div>
-<div class="clear"></div>
 <hr />
 
 <div class="grid_3" id="plug">

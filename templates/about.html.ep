@@ -2,31 +2,209 @@
 % title 'GeoPic me - about';
 
 <div class="grid_3" id="plug">
-    about GeoPic me
+    Open Parallel
 </div>
 <div class="grid_9">
 <p>
-GeoPic Me is a demo page to showcase <b>Open Parallel's</b> work with <b>TBB</b>
-(<b>Threading Building Blocks</b>). We worked for some months on exposing TBB
-functionality in script languages and you are now playing with the
-outcomes.
-</p><p>
-TBB is a threading library developed by Intel that makes developing with
-a multicore CPU much easier and takes a lot out of the scary threading
-issues normally associated with multicore programming.
-</p><p>
-We decided that PHP end Perl are the two languages we want to focus on
-and took a different path for both. The PHP work set our to enhance the
-HipHop engine and push the TBB integration in HipHop further. The Perl
-integration is a extension that targets the Perl5 interpreter and extend
-the core language.
-</p>
-<p>
-more information on our github repository: <a href="https://github.com/openparallel" tagret="new">github.com/openparallel</a>
-</p>
-<p>
-Visit <a href="http://www.OpenParallel.com">www.OpenParallel.com</a> for more details.
+<b>Open Parallel</b> is a software company specialised around multicore and
+manycore systems and parallel programming. Our solutions are scalable to
+any number of CPUs, computers or systems. We advise and provide software
+and hardware solutions tailored to your data and needs, whether on a
+single desktop, or on a massively parallel supercomputing cluster. Open
+Parallel Limited is a private company registered in New Zealand
 </p>
 </div>
 <div class="clear"></div>
+<div class="grid_3" id="plug">
+    about GeoPic me
+</div>
+<div class="grid_9">
+
+<p>GeoPic Me is a demo page to showcase <b>Open Parallel's</b> work
+with <b>TBB</b>.  We developed a proof of concept integration of the
+Intel Threading Building Blocks C++ library with the Perl interpreter.
+
+<p>Quick links:
+
+<ul>
+  <li><a href="https://github.com/openparallel/geoPic-pl">Demo source code on github</a>
+  <li><a href="https://github.com/openparallel/geoPic-pl/commit/00f36f647eb">Individual Change to add TBB support to this demo</a> (though there was a subsequent commit to reduce a memory leak due to the use of passing XS objects around)
+  <li><a href="http://search.cpan.org/dist/threads-tbb/"><tt>threads::tbb</tt> module on CPAN</a>
+  <li><a href="https://github.com/openparallel/threads-tbb"><tt>threads::tbb</tt> source history on github</a>
+  <li><a href="http://openparallel.com/2011/05/11/threading-perl-using-tbb-the-cpan-module-and-white-paper/">White Paper: Threading Perl using TBB</a> - a lot of the text in this paper is also available on the module's POD/manual page.
+</ul>
+
+</div>
+<div class="clear"></div>
+<div class="grid_3" id="plug">
+About TBB
+</div>
+<div class="grid_9">
+
+<p>TBB is a GPL, cross-platform threading library developed by Intel
+that moves the emphasis when programming for modern multicore and
+multithreaded processors away from low-level technologies such as
+thread creation, joining, locks, semaphores and so on.  Instead, the
+emphasis is on providing access to common algorithms which can be
+enhanced by multicore hardware.
+
+<p>TBB is Free Software, and already ships today with all major Linux
+distributions.
+
+</p>
+</div>
+<div class="clear"></div>
+<div class="grid_3" id="plug">
+About the Demo System
+</div>
+<div class="grid_9">
+
+<h2>Platform</h2>
+
+<p>The server platform is a 4-way Xen guest running within an elastic
+  computing cloud.  It can therefore at times display quite erratic
+  results, depending on how busy the host hardware is, but overall the
+  roughly 4-times performance improvement for the scaling phase of the
+  operation is often seen in the measurements.
+
+<h2>Packages</h2>
+
+  <p>As noted on the demo page, ImageMagick was compiled without
+    OpenMP support, to force it to work single-threaded.  Without
+    doing this, some performance difference is seen but it is
+    relatively minor - TBB turned out 10% or so on a Core 2 Duo
+    platform used for development, but it could just as easily turn
+    out 50% slower if you tried it on an 8-core system; combining
+    parallelisation system can be like
+    a <href="http://tvtropes.org/pmwiki/pmwiki.php/Main/CrossingTheStreams">crossing
+    the streams</a> if you allow it to happen without tuning it
+    finely.
+
+  <p>But this demo is not about comparing OpenMP to TBB, or trying to
+    fine-tune performance out of an already quite performant library.
+    They are both libraries that allow programs which are performing
+    parallalizable problems to achieve speedup on multi-core systems.
+
+  <p>However, the availability or relative performance of OpenMP will
+    not help you if the time-consuming part of your program is not
+    already written in C or a language with OpenMP bindings.  This
+    module works with general Perl programs, with the caveats
+    described on the manual page and white paper.
+
+</div>
+<div class="clear"></div>
+<div class="grid_3" id="plug">
+Reproducing the demo setup
+</div>
+<div class="grid_9">
+
+<p>Instructions are given primarily for Debian/Ubuntu.  If you find
+yourself on another kind of system, you will probably spend a bit of
+time getting all the dependencies right when building packages etc.
+
+<p>To get there faster on a Linux platform, chroot images for Ubuntu
+and Debian can be found from several
+sites <a href="http://linux-vserver.org/Downloads#Guest_images">linked
+here</a>.  Enter it with <cite>chroot(8)</cite>, set
+up <tt>/etc/resolv.conf</tt> and <tt>/etc/apt/sources.list</tt>
+and <tt>apt-get update && apt-get install build-essential</tt> to get
+a basic system with a compiler.
+
+<p>For non-Linux platforms, such as Mac OS X or Windows, you may have
+difficulties.  <a href="contact.html">Contact OpenParallel</a> for
+commercial assistance with getting the module working on other
+platforms.
+
+<h3>Building a single-threaded ImageMagick</h3>
+
+  <p>It is possible to re-build imagemagick without OpenMP support on
+    an Ubuntu or Debian system using:
+
+<pre>sudo apt-get build-dep imagemagick
+sudo apt-get install build-essential fakeroot
+apt-get source imagemagick
+cd imagemagick-*
+vi debian/rules     # add --disable-openmp to the 'configure' command-line
+dpkg-buildpackage -b -uc -rfakeroot
+cd ..
+dpkg -i *.deb       # install the freshly built packages
+</pre>
+
+  <p>Please note the above commands are a hint to what is to be done,
+    and not a guarantee they won't destroy your system.
+
+  <p>On other systems, you would build imagemagick from source; in the
+    unpacked source tarball, you need to run something like this:
+
+<pre>./configure --without-openmp --without-opencl --with-perl
+(cd PerlMagick && perl ./Makefile.PL)
+make -j4
+sudo make install
+(cd PerlMagick && make && sudo make install)
+</pre>
+
+<h3>Building <tt>threads::tbb</tt></h3>
+
+  <p>This is the same as any other CPAN module actually, except that
+    you will need to have the TBB library installed already.
+
+  <p>On Debian or Ubuntu this is simply:
+
+<pre>sudo apt-get install libtbb-dev</pre>
+
+<p>On other systems, get the TBB source package and open
+the <tt>index.html</tt> as referred to in the included <tt>README</tt>
+file; instructions are within.
+
+<h3>Fetching and running the demo</h3>
+
+<p>Assuming you are using Perl 5.10.0 or later, you will need to
+  install the following pre-requisite CPAN modules;
+
+  <ul>
+    <li><tt>Flickr::API2</tt>
+    <li><tt>JSON::XS</tt>
+      <li><tt>LWP::Simple</tt>
+    <li><tt>Mojolicious::Lite</tt>
+    <li><tt>threads::tbb</tt>
+  </ul>
+
+<p>You will also need the <tt>Image::Magick</tt> module, which if you
+are building it single-threaded will have already been installed
+above.  Otherwise, it is in the <tt>perlmagick</tt> package.
+
+<p>Summary for Debian/Ubuntu:
+
+<pre>sudo apt-get install libjson-xs-perl libwww-perl libmojolicious-lite-perl
+sudo cpan Flickr::API2
+sudo cpan threads::tbb</pre>
+
+<p>Summary for everyone else:
+
+<pre>sudo cpan JSON::XS
+sudo cpan LWP::Simple
+sudo cpan Mojolicious::Lite
+sudo cpan Flickr::API2
+sudo cpan threads::tbb</pre>
+
+<p>Once you have all that installed, you can clone the demo
+using <a href="http://git-scm.org">git</a>:
+
+<pre>git clone git://github.com/openparallel/geoPic-pl
+cd geoPic-pl</pre>
+
+<p>Or fetch a snapshot tarball from Github:
+
+<pre>wget -O geopicme.tgz <a href="https://github.com/openparallel/geoPic-pl/tarball/master">https://github.com/openparallel/geoPic-pl/tarball/master</a>
+tar xzf geopicme.tgz
+cd openparallel-geoPic*</pre>
+
+<p>The demo can be run locally using:
+
+<pre>./geopicme-pl daemon</pre>
+
+<p>This should compile and let you know a URL you can access the demo
+on (usually <tt>http://localhost:3000/</tt>)
+
+</div>
 <hr />

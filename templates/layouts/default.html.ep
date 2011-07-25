@@ -57,6 +57,8 @@
     </header>
     <%= content %>
     <footer>
+    <div class="clear"></div>
+    <hr />
     <div class="grid_3">
         <div id="nav">
             <a href="contact.html">contact</a> | <a href="about.html">about</a>

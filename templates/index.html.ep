@@ -1,26 +1,70 @@
 % layout 'default';
 % title 'GeoPic me';
 <div id="main" role="main">
+    <h1>Accelerating 'embarassingly parallel' problems with <tt>threads::tbb</tt></h1>
+
+    <p>This page is set up to show an example program which is sped up
+      using Intel Threading Building blocks.  The demo shows a real
+      Perl program, which is taking a series of oversized images,
+      editing and combining them into a single image.  This is called
+      an <em>embarassingly parallel</em> task, because it is clear
+      that the work can be broken up into many parts which have no
+      influence on each other.
+
+    <p>When the page loads, it sends your approximate location to the
+      application server (a simple handler written
+      using <a href="http://search.cpan.org/dist/Mojolicious-Lite"><tt>Mojolicious::Lite</tt></a>),
+      and then via the Flickr API a set of images are selected for
+      display.  The images are first displayed in a simple table and
+      resized to 160 pixels on their longest side.
+
+    <p>The first time you click either Montage (single) or Montage
+      (TBB), the server itself fetches and saves server side 500 pixel
+      image versions of the images you see the thumbnails of below.
+
+      Once it has the images on disk,
+      using <a href="http://search.cpan.org/dist/Image-Magick"><tt>Image::Magick</tt></a>
+      it crops each image to be square and then performs a high
+      quality resize using a High Quality Gaussian filter to be 160
+      pixels square.
+
+      Finally, the resultant images are combined into a single image,
+      and saved.  Timing information, which was measured on the
+      server, is returned via JSON along with a URL to load the actual
+      image.  Client-side Javascript updates a run log and statistics
+      table below the montage.  Time spent fetching images from Flickr
+      or accessing the Flickr API is timed separately and does not
+      affect the computed averages.
+
+    <p>To run the test, simply press each button a few times each, and
+      check that you see a different image every time, and watch the
+      results table fill up with timing data.
+
     <hr />
-    <div class="grid_3">
-        <div id="plug">Location</div>
-        <div id="map">searching for your location ...</div>
-        <div id="actions" style="text-align: center; display: none">
-	  <button onclick="resize_imgs()">Resize (browser)</button><br/>
-	  <button onclick="get_scaled()">Mosaic (normal)</button><br/>
-	  <button onclick="get_scaled_tbb()">Mosaic (TBB)</button><br/>
+    <div class="grid_2" style="text-align: center">
+        <b>Location: </b><br/>
+        <span id="map">searching for your location ...</span>
+    </div>
+    <div class="grid_1" style="text-align: right">
+        <b>Run Test:</b>
+    </div>
+    <div class="grid_8">
+        <div id="actions" style="display: none">
+	  <button onclick="get_scaled()">Montage (single)</button>
+	    - server-side HQ centered crop, single-threaded scale-down & montage
+	  <br/>
+	  <button onclick="get_scaled_tbb()">Montage (TBB)</button>
+	    - server-side HQ centered crop, parallel scale-down & montage
+	  <br/>
 	</div>
-	<table id="stats" style="display: none; text-align: center" border="1">
-	  <tr>
-	    <th>which</th><th>/avg scale time</th><th>/n</th>
-	  </tr>
-	  <tr>
-	    <td>normal</th><th id="normalavg">-</th><th id="normaln">0</th>
-	  </tr>
-	  <tr>
-	    <td>TBB</th><th id="tbbavg">-</th><th id="tbbn">0</th>
-	  </tr>
-	</table>
+    </div>
+    <div class="clear"></div>
+    <div class="grid_12" style="padding: 1em">
+        <div id="images">
+	</div>
+    </div>
+    <div class="clear"></div>
+    <div class="grid_6">
 	<table id="times" style="display: none;" border="1">
 	  <tr>
 	    <th>Run</th><th>/button</th><th>/fetch time</th><th>/scale time</th><th>/composite time</th>
@@ -28,15 +72,32 @@
 	  <tbody id="timesdata"/>
 	</table>
     </div>
-    <div class="grid_9">
-        <div id="images">
-	</div>
+    <div class="grid_6">
+	<table id="stats" style="display: none; text-align: center" border="1">
+	  <tr>
+	    <th>which</th><th>/avg scale time</th><th>/n</th>
+	  </tr>
+	  <tr>
+	    <td>single</th><th id="singleavg">-</th><th id="singlen">0</th>
+	  </tr>
+	  <tr>
+	    <td>TBB</th><th id="tbbavg">-</th><th id="tbbn">0</th>
+	  </tr>
+	</table>
     </div>
     <div class="clear"></div>
     <hr />
-    <p>Info: <br />
-      <a href="https://github.com/openparallel/geoPic-pl">Source code on github</a> <br />
-      <a href="https://github.com/openparallel/geoPic-pl/commit/00f36f647eb">Change to add TBB support to this code</a>
+    <div role="note">
+      Notes:
+      <ul>
+	<li>timings may be skewed by concurrent use of hosting
+	  platform or hosting platform bugs - see full about page for
+	  more.
+	<li>ImageMagick was compiled without alternate multi-core
+	  systems such as OpenMP, OpenCL etc.
+	<li>More details on the 'about' page.
+      </ul>
+    </div>
 </div>
 
 <script type="text/javascript">
@@ -173,6 +234,10 @@ function add_timing_datum( which, stats, data ) {
 
     times_table.appendChild(tr);
     $("#times").show();
+    $("#times").css("text-align", "center");
+    $("#times").css("border-width", "1px");
+    $("#times").css("border-spacing", "2px");
+    $("#times").css("border-color", "gray");
 
     stats["total"] = stats["total"] + parseFloat(data["resize_time"]);
     stats["n"] = stats["n"] + 1;
