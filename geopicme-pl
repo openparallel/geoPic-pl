@@ -105,7 +105,7 @@ use Geopicme;
 
 our $tbb = threads::tbb->new( modules => [ "Geopicme" ] );
 
-get '/perl/mosaic/(*method)/(*lat)/(*lon)/(*seed)' => sub {
+get '/perl/montage/(*method)/(*lat)/(*lon)/(*seed)' => sub {
     my $self = shift;
     my $method = $self->stash("method");
     my $lat  = $self->stash('lat');
@@ -119,22 +119,25 @@ get '/perl/mosaic/(*method)/(*lat)/(*lon)/(*seed)' => sub {
     if ( $seed ) { srand $seed; @files = shuffle @files }
     my $t1 = [gettimeofday];
 
-    my $mosaic = Image::Magick->new(size => "800x640", debug => "Exception");
-    $mosaic->Read("xc:white");
+    my $montage = Image::Magick->new(size => "800x640", debug => "Exception");
+    $montage->Read("xc:white");
 
-    if ( $method eq "normal" ) {
+    my $label;
+    if ( $method eq "single" ) {
 	@images = map { resize_image($_) }
 	    @files;
+	$label = "single";
     }
     else {
 	@images = $tbb->map_list_func("Geopicme::resize_image", @files);
+	$label = "tbb";
     }
 
     my $x_pos = 0;
     my $y_pos = 0;
     my $t2 = [gettimeofday];
     for my $image ( @images ) {
-	$mosaic->Composite(
+	$montage->Composite(
 	    image => $image,
 	    compose => "over",
 	    x => $x_pos * 160, y => $y_pos * 160,
@@ -152,13 +155,12 @@ get '/perl/mosaic/(*method)/(*lat)/(*lon)/(*seed)' => sub {
 	.md5_hex(sprintf("@%.2f+%.2f", $lat, $lon))."_montage_${label}_$seed.jpg";
     #jopen my $out, ">", $img_filename;
     print STDERR "Writing $img_filename\n";
-    $mosaic->Set(quality => 75);
-    my $x = $mosaic->Write("jpg:$img_filename");
+    $montage->Set(quality => 75);
+    if ( -f $img_filename ) {
+	unlink($img_filename);
+    }
+    my $x = $montage->Write("jpg:$img_filename");
     warn $x if $x;
-	#magick => "jpg", quality => 85,
-	#jfile => $out,
-	#jfilename => $img_filename,
-    #);
     print STDERR "...?\n";
     #jclose $out;
     my $t3 = [gettimeofday];

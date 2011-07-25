@@ -50,7 +50,7 @@ function get_location() {
 } 
 var latitude;
 var longitude;
-var normalstats;
+var singlestats;
 var tbbstats;
 var runs = 0;
 function show_map(position) {
@@ -87,13 +87,14 @@ function show_map(position) {
         }
         images.appendChild(table);
         $('#actions').show();
+	window.setTimeout(function(){resize_imgs()}, 1000);
       }
     });
 }
 
 $(document).ready(function() { 
     get_location();
-    normalstats = { "total": 0, "n": 0, "avg_id": "normalavg", "n_id": "normaln" };
+    singlestats = { "total": 0, "n": 0, "avg_id": "singleavg", "n_id": "singlen" };
     tbbstats = { "total": 0, "n": 0, "avg_id": "tbbavg", "n_id": "tbbn" };
 });
 
@@ -110,7 +111,7 @@ function resize_imgs() {
 
 function get_scaled() {
     $.ajax({
-      'url': '/perl/mosaic/normal/' + latitude + '/' + longitude + '/' + runs,
+      'url': '/perl/montage/single/' + latitude + '/' + longitude + '/' + runs,
       'dataType': 'json',
       'success': function(data) {
          $("#images").empty();
@@ -118,14 +119,14 @@ function get_scaled() {
          scaled = document.createElement("img");
          scaled.setAttribute("src", data.image_url);
          images.appendChild(scaled);
-	 add_timing_datum( "normal", normalstats, data );
+	 add_timing_datum( "single", singlestats, data );
       }
     })
 }
 
 function get_scaled_tbb() {
     $.ajax({
-      'url': '/perl/mosaic/tbb/' + latitude + '/' + longitude + '/' + runs,
+      'url': '/perl/montage/tbb/' + latitude + '/' + longitude + '/' + runs,
       'dataType': 'json',
       'success': function(data) {
          $("#images").empty();
