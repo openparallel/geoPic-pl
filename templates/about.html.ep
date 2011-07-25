@@ -76,7 +76,7 @@ About the Demo System
     platform used for development, but it could just as easily turn
     out 50% slower if you tried it on an 8-core system; combining
     parallelisation system can be like
-    a <href="http://tvtropes.org/pmwiki/pmwiki.php/Main/CrossingTheStreams">crossing
+    <a href="http://tvtropes.org/pmwiki/pmwiki.php/Main/CrossingTheStreams">crossing
     the streams</a> if you allow it to happen without tuning it
     finely.
 
